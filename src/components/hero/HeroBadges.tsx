@@ -3,14 +3,12 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-interface HeroBadgesProps {
-  badges: string[];
-}
+const BADGES = ["Product Thinker", "UI/UX", "Frontend", "Creative", "Curious"];
 
-export function HeroBadges({ badges }: HeroBadgesProps) {
+export function HeroBadges() {
   return (
-    <div className="flex flex-wrap gap-3 mt-8 max-w-lg">
-      {badges.map((badge, idx) => (
+    <div className="flex flex-wrap gap-2.5 mt-8 max-w-lg">
+      {BADGES.map((badge, idx) => (
         <motion.span
           key={badge}
           className="px-4 py-2 text-xs font-sans font-medium rounded-full glass-panel border border-charcoal/5 dark:border-warm-white/5 text-charcoal/80 dark:text-warm-white/80 cursor-default select-none shadow-xs"
@@ -27,7 +25,7 @@ export function HeroBadges({ badges }: HeroBadgesProps) {
             type: "spring",
             stiffness: 260, 
             damping: 20,
-            delay: 0.5 + idx * 0.1 
+            delay: 0.55 + idx * 0.08
           }}
         >
           {badge}
