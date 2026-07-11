@@ -22,7 +22,7 @@ export function HeroImageCarousel() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Parallax tilt motion values
+  // Parallax tilt tracking
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -37,7 +37,7 @@ export function HeroImageCarousel() {
     stopCarousel();
     intervalRef.current = setInterval(() => {
       setStep((prevStep) => (prevStep + 1) % SEQUENCE.length);
-    }, 3800); // Transitions every 3.8s
+    }, 3800);
   };
 
   const stopCarousel = () => {
@@ -76,13 +76,24 @@ export function HeroImageCarousel() {
   const currentImage = IMAGES[SEQUENCE[step]];
 
   return (
-    <div className="relative w-full flex items-center justify-center p-2 select-none">
-      {/* Soft ambient glow behind the portrait */}
-      <div className="absolute w-[80%] h-[80%] bg-accent/8 rounded-full filter blur-[70px] pointer-events-none z-0" />
+    <div className="relative w-full flex items-center justify-center p-2 select-none overflow-visible">
+      {/* Soft rounded ambient shadow & glow behind portrait (no enclosing box) */}
+      <motion.div 
+        className="absolute w-[60%] h-[75%] bg-charcoal/5 dark:bg-accent/15 rounded-full filter blur-[50px] pointer-events-none z-0" 
+        style={{ transform: "translateZ(-15px)" }}
+        animate={{
+          scale: isHovered ? 1.05 : [1, 1.06, 1],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
 
       <motion.div
         ref={containerRef}
-        // Scaled bounds: Increased width by 25% for a larger, more balanced visual weight
+        // Scaled bounds: Increased width by 25% for a larger, more balanced visual weight. Removed all enclosing box parameters.
         className={cn(
           "relative w-full max-w-[390px] sm:max-w-[430px] md:max-w-[480px] aspect-[4/5] cursor-pointer flex items-center justify-center z-10 overflow-visible"
         )}
@@ -96,7 +107,7 @@ export function HeroImageCarousel() {
         }}
         animate={{
           y: isHovered ? -6 : [0, -12, 0],
-          scale: isHovered ? 1.03 : 1,
+          scale: isHovered ? 1.04 : 1,
           rotate: isHovered ? 0 : [0, 1, -1, 0],
         }}
         transition={{
@@ -117,21 +128,20 @@ export function HeroImageCarousel() {
           }
         }}
       >
-        <AnimatePresence mode="wait">
+        {/* Concurrent crossfade: AnimatePresence does not use mode="wait" so images crossfade without blinking */}
+        <AnimatePresence>
           <motion.div
             key={step}
-            // Spring scale, spring translate, and smooth opacity fades
-            initial={{ opacity: 0, scale: 0.96, y: 10 }}
+            initial={{ opacity: 0, scale: 0.97, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 1.04, y: -10 }}
+            exit={{ opacity: 0, scale: 1.03, y: -8 }}
             transition={{ 
               type: "spring",
-              stiffness: 100,
-              damping: 22,
-              opacity: { duration: 0.6, ease: "easeInOut" }
+              stiffness: 85,
+              damping: 24,
+              opacity: { duration: 0.7, ease: "easeInOut" }
             }}
-            // filter: drop-shadow casts organic shadows around the blended outline
-            className="absolute inset-0 w-full h-full filter drop-shadow-[0_15px_35px_rgba(0,0,0,0.06)] dark:drop-shadow-[0_0_35px_rgba(99,102,241,0.22)]"
+            className="absolute inset-0 w-full h-full"
             style={{ transform: "translateZ(25px)" }}
           >
             <Image
@@ -140,9 +150,9 @@ export function HeroImageCarousel() {
               fill
               priority
               sizes="(max-width: 768px) 100vw, 480px"
-              // mix-blend-multiply blends the white portrait background with the warm-white page
-              // dark mode inverts the illustration white background to black and hue-rotates to preserve natural color channels
-              className="object-contain object-center pointer-events-none transition-transform duration-700 hover:scale-[1.03] mix-blend-multiply dark:mix-blend-normal dark:invert dark:hue-rotate-180"
+              // mix-blend-multiply renders white pixels transparent to reveal the grid background.
+              // dark mode inverts illustration layers and applies mix-blend-screen so black background blends transparently.
+              className="object-contain object-center pointer-events-none transition-transform duration-700 hover:scale-[1.02] mix-blend-multiply dark:mix-blend-screen dark:invert dark:hue-rotate-180"
             />
           </motion.div>
         </AnimatePresence>
